@@ -45,7 +45,12 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            await manager.send_message(data, websocket)
+            if data['type'] == 'leave':
+                manager.disconnect(websocket)
+                await websocket.close()
+                break
+            else:
+                await manager.send_message(data, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await websocket.close()
